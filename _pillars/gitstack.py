@@ -21,13 +21,6 @@ from jinja2 import FileSystemLoader, Environment
 
 # Import third party libs
 import salt.ext.six as six
-# pylint: disable=import-error
-try:
-    import git
-    HAS_GITPYTHON = True
-except ImportError:
-    HAS_GITPYTHON = False
-# pylint: enable=import-error
 
 # Set up logging
 log = logging.getLogger(__name__)
@@ -49,11 +42,11 @@ strategies = salt.pillar.stack.strategies
 
 def __virtual__():
     '''
-    Only load if gitpython is available
+    Only load if gitstack pillars are defined
     '''
     gitstack_pillars = [x for x in __opts__['ext_pillar'] if 'gitstack' in x]
     if not gitstack_pillars:
-        # No git external pillars were configured
+        # No gitstack external pillars were configured
         return False
 
     return __virtualname__
