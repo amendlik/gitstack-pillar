@@ -6,18 +6,11 @@ import logging
 import os
 
 # Import salt libs
+import salt.loader
 import salt.utils
 import salt.utils.gitfs
 import salt.utils.dictupdate
-import salt.pillar.stack
 import salt.pillar.git_pillar
-
-# Import modules required by stack pillar
-import posixpath
-from functools import partial
-from glob import glob
-import yaml
-from jinja2 import FileSystemLoader, Environment
 
 # Import third party libs
 import salt.ext.six as six
@@ -27,17 +20,6 @@ log = logging.getLogger(__name__)
 
 # Define the module's virtual name
 __virtualname__ = 'gitstack'
-
-# Copy stack global objects into this namespace
-stack_ext_pillar = salt.utils.namespaced_function(salt.pillar.stack.ext_pillar, globals())
-_to_unix_slashes = salt.utils.namespaced_function(salt.pillar.stack._to_unix_slashes, globals())
-_construct_unicode = salt.utils.namespaced_function(salt.pillar.stack._construct_unicode, globals())
-_process_stack_cfg = salt.utils.namespaced_function(salt.pillar.stack._process_stack_cfg, globals())
-_cleanup = salt.utils.namespaced_function(salt.pillar.stack._cleanup, globals())
-_merge_dict = salt.utils.namespaced_function(salt.pillar.stack._merge_dict, globals())
-_merge_list = salt.utils.namespaced_function(salt.pillar.stack._merge_list, globals())
-_parse_stack_cfg = salt.utils.namespaced_function(salt.pillar.stack._parse_stack_cfg, globals())
-strategies = salt.pillar.stack.strategies
 
 
 def __virtual__():
@@ -53,6 +35,9 @@ def __virtual__():
 
 
 def ext_pillar(minion_id, pillar, *args, **kwargs):
+
+    # Load the 'stack' pillar module
+    stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)['stack']
 
     # Checkout the ext_pillar sources
     opts = copy.deepcopy(__opts__)
@@ -73,17 +58,18 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         log.error('Repositories used by gitstack must be included in the git pillar configuration')
         return {}
 
-    stack = _resolve_stack(kwargs['stack'], list(gitpillar.pillar_dirs.items())[0][0])
+    # Replace relative paths with the absolute path of the cloned repository
+    stack_config = _resolve_stack(kwargs['stack'], list(gitpillar.pillar_dirs.items())[0][0])
 
-    # Call the stack pillar module
-    if isinstance(stack, dict):
-        return stack_ext_pillar(minion_id, pillar, **stack)
+    # Call the 'stack' pillar module
+    if isinstance(stack_config, dict):
+        return stack_pillar(minion_id, pillar, **stack_config)
 
-    elif isinstance(stack, list):
-        return stack_ext_pillar(minion_id, pillar, *stack)
+    elif isinstance(stack_config, list):
+        return stack_pillar(minion_id, pillar, *stack_config)
 
     else:
-        return stack_ext_pillar(minion_id, pillar, stack)
+        return stack_pillar(minion_id, pillar, stack_config)
 
 
 def _resolve_stack(x, path):
