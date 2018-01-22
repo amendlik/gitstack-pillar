@@ -21,11 +21,11 @@ gitfs_remotes:
   - https://github.com/amendlik/gitstack-pillar.git
 ```
 
-If the gitfs fileserver backend is not enabled, simply download the file to the `_pillars` directory in the fileserver root directory.
+If the gitfs fileserver backend is not enabled, simply download the file to the `_pillar` directory in the fileserver root directory.
 ```
-mkdir -p /srv/salt/_pillars
-cd /srv/salt/_pillars
-curl -O https://raw.githubusercontent.com/amendlik/gitstack-pillar/master/_pillars/gitstack.py
+mkdir -p /srv/salt/_pillar
+cd /srv/salt/_pillar
+curl -O https://raw.githubusercontent.com/amendlik/gitstack-pillar/master/_pillar/gitstack.py
 ```
 
 Regardless of which approach above was followed, one additional step is required to make the module available to the Salt Master. Run the following command on the Salt Master:
