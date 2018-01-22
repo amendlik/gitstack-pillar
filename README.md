@@ -21,10 +21,10 @@ gitfs_remotes:
   - https://github.com/amendlik/gitstack-pillar.git
 ```
 
-If the gitfs fileserver backend is not enabled, simply download the file to the `_pillars` directory in the fileserver root directory.
+If the gitfs fileserver backend is not enabled, simply download the file to the `_pillar` directory in the fileserver root directory.
 ```
-mkdir -p /srv/salt/_pillars
-cd /srv/salt/_pillars
+mkdir -p /srv/salt/_pillar
+cd /srv/salt/_pillar
 curl -O https://raw.githubusercontent.com/amendlik/gitstack-pillar/master/_pillars/gitstack.py
 ```
 
@@ -54,11 +54,11 @@ ext_pillar:
 The equivalent GitStack Pillar configuration, fetching files from a remote Git repository, might look like this:
 ```
 ext_pillar:
-  - gitstack: 
+  - gitstack:
       stack: _stack/stack.cfg
       repo: https://github.com/org/myrepo.git
       branch: master
-  - git: 
+  - git:
     - master https://github.com/org/myrepo.git
 ```
 
@@ -80,7 +80,7 @@ ext_pillar:
 The equivalent GitStack Pillar configuration, fetching files from a remote Git repository, might look like this:
 ```
 ext_pillar:
-  - gitstack: 
+  - gitstack:
       stack:
         pillar:environment:
           dev: _stack/stack.cfg
@@ -93,7 +93,7 @@ ext_pillar:
           value: _stack/stack0.cfg
       repo: https://github.com/org/myrepo.git
       branch: master
-  - git: 
+  - git:
     - master https://github.com/org/myrepo.git
 ```
 #### Explanation
