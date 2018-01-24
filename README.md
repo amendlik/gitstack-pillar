@@ -114,11 +114,11 @@ ext_pillar:
   - gitstack:
     - master https://mydomain.tld/foo.git:
       - root: pillar
-      - stack: _stack/stack.cfg
+      - stack: _stack/stack_foo.cfg
     - master https://mydomain.tld/baz.git:
-      - stack: _stack/stack.cfg
+      - stack: _stack/stack_baz.cfg
     - dev https://mydomain.tld/qux.git:
-      - stack: _stack/stack.cfg
+      - stack: _stack/stack_qux.cfg
 
   - git:
     - master https://mydomain.tld/foo.git:
@@ -126,7 +126,15 @@ ext_pillar:
     - master https://mydomain.tld/baz.git
     - dev https://mydomain.tld/qux.git
 ```
-
+the Stack Pillar configurations are managed as they were:
+```
+ext_pillar:
+  - stack:
+    - /path/to/stack_foo.cfg
+    - /path/to/stack_baz.cfg
+    - /path/to/stack_qux.cfg
+```
+in this scenario is very important consider the repositeries layout and in case manage conflicts using the `mountpoint` parameter as for Git Pillar configuration.
 
 #### Explanation
 1. The entire Stack Pillar configuration is nested under the `stack` key, which is inself nested under the `gitstack` key. This configuration will be modified to resolve the relative file paths to the absolute path of the local cache of the Git repository, then passed to the Stack Pillar.
