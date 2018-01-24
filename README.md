@@ -25,7 +25,7 @@ If the gitfs fileserver backend is not enabled, simply download the file to the 
 ```
 mkdir -p /srv/salt/_pillar
 cd /srv/salt/_pillar
-curl -O https://raw.githubusercontent.com/amendlik/gitstack-pillar/master/_pillars/gitstack.py
+curl -O https://raw.githubusercontent.com/amendlik/gitstack-pillar/master/_pillar/gitstack.py
 ```
 
 Regardless of which approach above was followed, one additional step is required to make the module available to the Salt Master. Run the following command on the Salt Master:
