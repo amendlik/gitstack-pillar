@@ -96,6 +96,38 @@ ext_pillar:
   - git:
     - master https://github.com/org/myrepo.git
 ```
+
+#### Example 3
+Here is an example of Git Pillar configuration
+```
+ext_pillar:
+  - git:
+    - master https://mydomain.tld/foo.git:
+      - root: pillar
+    - master https://mydomain.tld/baz.git
+    - dev https://mydomain.tld/qux.git
+```
+The equivalent GitStack Pillar configuration, fetching files from several remotes Git repository, assuming we have a stack config under each repositories,
+might look like this:
+```
+ext_pillar:
+  - gitstack:
+    - master https://mydomain.tld/foo.git:
+      - root: pillar
+      - stack: _stack/stack.cfg
+    - master https://mydomain.tld/baz.git:
+      - stack: _stack/stack.cfg
+    - dev https://mydomain.tld/qux.git:
+      - stack: _stack/stack.cfg
+
+  - git:
+    - master https://mydomain.tld/foo.git:
+      - root: pillar
+    - master https://mydomain.tld/baz.git
+    - dev https://mydomain.tld/qux.git
+```
+
+
 #### Explanation
 1. The entire Stack Pillar configuration is nested under the `stack` key, which is inself nested under the `gitstack` key. This configuration will be modified to resolve the relative file paths to the absolute path of the local cache of the Git repository, then passed to the Stack Pillar.
 
