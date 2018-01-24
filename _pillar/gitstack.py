@@ -89,8 +89,6 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         log.error('gitstack configuration have to be a list of dicts or a single dict')
         return {}
 
-    # Load the 'stack' pillar module
-    stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)['stack']
     # initialize git pillar for repo
     # check arguments to use with GitPillar, we could check also salt version
     if len(salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames) > 2:
@@ -122,7 +120,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
             try:
                 pillar_dir = pillar_dirs[idx]
             except IndexError:
-                log.warning('Ignoring gitstack stack configuration: %s')
+                log.warning('Ignoring gitstack stack configuration: %s' % stack)
                 log.warning('Ignoring gitstack repo maybe failed checkout')
                 continue
             if isinstance(stack, dict):
@@ -133,6 +131,8 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
                 resolved_stack = _resolve_stack(stack, pillar_dir)
                 stack_config.append(resolved_stack)
 
+    # Load the 'stack' pillar module
+    stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)['stack']
     # Call the 'stack' pillar module
     if isinstance(stack_config, dict):
         return stack_pillar(minion_id, pillar, **stack_config)
