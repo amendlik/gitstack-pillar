@@ -1,0 +1,24 @@
+# @markup text
+local: true
+file_client: local
+state_top: top.sls
+root_dir: <%= config[:root_path] %>
+
+file_roots:
+ <%= config[:salt_env] %>:
+   - <%= File.join(config[:root_path], (windows_os? ? config[:salt_file_root].gsub('/', '\\') : config[:salt_file_root])) %>
+   - <%= File.join(config[:root_path], (windows_os? ? config[:salt_spm_root].gsub('/', '\\') : config[:salt_spm_root])) %>/salt
+
+pillar_roots:
+ <%= config[:salt_env] %>:
+   - <%= File.join(config[:root_path], (windows_os? ? config[:salt_pillar_root].gsub('/', '\\') : config[:salt_pillar_root])) %>
+   - <%= File.join(config[:root_path], (windows_os? ? config[:salt_spm_root].gsub('/', '\\') : config[:salt_spm_root])) %>/pillar
+
+ext_pillar:
+  - gitstack: 
+      stack: _stack/stack.cfg
+      repo: https://github.com/amendlik/gitstack-pillar.git
+      branch: master
+  - git: 
+    - master https://github.com/amendlik/gitstack-pillar.git:
+      - root: test

@@ -1,0 +1,52 @@
+driver:
+  name: docker
+  use_sudo: false
+  privileged: true
+
+provisioner:
+  name: salt_solo
+  is_file_root: true
+  #salt_minion_config_template: test/minion.erb
+  salt_copy_filter:
+    - .git
+    - .gitignore
+    - .kitchen
+    - .kitchen.yml
+    - Gemfile
+    - Gemfile.lock
+    - README.md
+    - LICENSE
+  init_environment: |
+    sudo salt-call --local -c /tmp/kitchen/etc/salt saltutil.sync_all
+
+platforms:
+  - name: debian
+  # - name: centos-7.4
+  #   driver_config:
+  #     run_command: /usr/lib/systemd/systemd
+  # - name: debian-8.4
+  #   driver_config:
+  #     run_command: /lib/systemd/systemd
+
+suites:
+  - name: nitrogen
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
+      state_top:
+        base:
+          '*':
+            - test.sandbox
+      pillars:
+        top.sls:
+          base:
+            '*':
+              - gitstack_config
+        gitstack_config.sls:
+          gitstack_config:
+            ext_pillar:
+              - gitstack: 
+                  stack: _stack/stack.cfg
+                  repo: file:///tmp/kitchen/srv/salt/test
+                  branch: master
+              - git: 
+                - master file:///tmp/kitchen/srv/salt/test
