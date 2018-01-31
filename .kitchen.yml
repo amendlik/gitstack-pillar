@@ -1,3 +1,5 @@
+<% provisioner_root_path='/tmp/kitchen' %>
+
 driver:
   name: docker
   use_sudo: false
@@ -6,7 +8,7 @@ driver:
 provisioner:
   name: salt_solo
   is_file_root: true
-  #salt_minion_config_template: test/minion.erb
+  root_path: <%= provisioner_root_path %>
   salt_copy_filter:
     - .git
     - .gitignore
@@ -16,8 +18,6 @@ provisioner:
     - Gemfile.lock
     - README.md
     - LICENSE
-  init_environment: |
-    sudo salt-call --local -c /tmp/kitchen/etc/salt saltutil.sync_all
 
 platforms:
   - name: debian
@@ -41,12 +41,22 @@ suites:
           base:
             '*':
               - gitstack_config
+              - kitchen
+        kitchen.sls:
+          kitchen:
+            provisioner:
+              root_path: <%= provisioner_root_path %>
         gitstack_config.sls:
           gitstack_config:
             ext_pillar:
               - gitstack: 
                   stack: _stack/stack.cfg
-                  repo: file:///tmp/kitchen/srv/salt/test
+                  repo: file://<%= provisioner_root_path %>/srv/salt/test
                   branch: master
               - git: 
-                - master file:///tmp/kitchen/srv/salt/test
+                - master file://<%= provisioner_root_path %>/srv/salt/test
+
+verifier:
+  name: shell
+  remote_exec: true
+  command: echo <%= provisioner_root_path %>
