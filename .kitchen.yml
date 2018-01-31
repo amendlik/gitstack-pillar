@@ -18,15 +18,14 @@ provisioner:
     - Gemfile.lock
     - README.md
     - LICENSE
+  pillars:
+    kitchen.sls:
+      kitchen:
+        provisioner:
+          root_path: <%= provisioner_root_path %>
 
 platforms:
   - name: debian
-  # - name: centos-7.4
-  #   driver_config:
-  #     run_command: /usr/lib/systemd/systemd
-  # - name: debian-8.4
-  #   driver_config:
-  #     run_command: /lib/systemd/systemd
 
 suites:
   - name: nitrogen
@@ -40,12 +39,8 @@ suites:
         top.sls:
           base:
             '*':
-              - gitstack_config
               - kitchen
-        kitchen.sls:
-          kitchen:
-            provisioner:
-              root_path: <%= provisioner_root_path %>
+              - gitstack_config
         gitstack_config.sls:
           gitstack_config:
             ext_pillar:
