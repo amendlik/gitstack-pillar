@@ -1,7 +1,3 @@
-sync_extmods:
-  module.run:
-    - name: saltutil.sync_all
-
 init_repo:
   cmd.script:
     - name: salt://test/initrepo.sh
