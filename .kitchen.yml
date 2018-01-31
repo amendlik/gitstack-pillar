@@ -58,5 +58,5 @@ suites:
 
 verifier:
   name: shell
-  remote_exec: true
-  command: echo <%= provisioner_root_path %>
+  remote_exec: false
+  command: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -o LogLevel=ERROR -i ${KITCHEN_SSH_KEY} -p ${KITCHEN_PORT} ${KITCHEN_USERNAME}@${KITCHEN_HOSTNAME} sh <%= provisioner_root_path %>/srv/salt/test/suites/${KITCHEN_SUITE}/verify.sh
