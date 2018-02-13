@@ -135,8 +135,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         return stack_pillar(minion_id, pillar, *stack_config, **stack_config_kwargs)
 
     else:
-        return stack_pillar(minion_id, pillar,
-                            stack_config, **stack_config_kwargs)
+        return stack_pillar(minion_id, pillar, stack_config)
 
 
 def _resolve_stack(x, path):
