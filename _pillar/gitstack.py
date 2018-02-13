@@ -21,11 +21,7 @@ except ImportError:
     from salt.utils import repack_dictlist
 
 PER_REMOTE_OVERRIDES = salt.pillar.git_pillar.PER_REMOTE_OVERRIDES
-PER_REMOTE_ONLY = tuple(
-    set(list(salt.pillar.git_pillar.PER_REMOTE_ONLY) +
-        [
-            'stack'
-        ]))
+PER_REMOTE_ONLY = tuple(set(list(salt.pillar.git_pillar.PER_REMOTE_ONLY) + ['stack']))
 
 # Set up logging
 log = logging.getLogger(__name__)
@@ -54,39 +50,36 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
     opts['__git_pillar'] = True
     stacks = []
     invalid_repos_idx = []
+
     ## legacy configuration with a plain dict under gitstack ext_pillar key
     if single_repo_conf and single_repo_conf.get('repo', None) is not None:
         branch = single_repo_conf.get('branch', 'master')
         repo = single_repo_conf['repo']
         remote = ' '.join([branch, repo])
-        init_gitpillar_args = [
-            [remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY
-        ]
+        init_gitpillar_args = [ [remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY ]
         if 'stack' not in single_repo_conf:
             log.error('A stack key is mandatory in gitstack configuration')
             return {}
+
     ## new configuration way
     elif isinstance(repos, (list, tuple)) and len(repos) > 0:
         for repo_idx, repo in enumerate(repos):
             kw = repack_dictlist(repo[next(iter(repo))])
             if 'stack' not in kw:
                 # stack param is mandatory in gitstack repos configuration
-                log.warning('gitstack configuration have to contain a stack param for each repo.'
-                            ' It will be passed to stack pillar as is.')
-                log.warning('gitstack repo %s (at position %d) will be ignored' % (next(iter(repo)), repo_idx))
+                log.warning('Configuration for gitstack must contain a stack key for each repo.')
+                log.warning('Configured gitstack repo %s (at position %d) will be ignored' % (next(iter(repo)), repo_idx))
                 invalid_repos_idx.append(repo_idx)
                 continue
-                #return {}
+
             stacks.append(kw['stack'])
 
         valid_repos = [repo for repo_idx, repo in enumerate(repos) if repo_idx not in invalid_repos_idx]
-        init_gitpillar_args = [
-            valid_repos, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY
-        ]
+        init_gitpillar_args = [ valid_repos, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY ]
 
     else:
-        ### nothing to initialize
-        log.error('gitstack configuration have to be a list of dicts or a single dict')
+        ### Invalid configuration
+        log.error('Configuration for gitstack must be a list of dicts or a single dict')
         return {}
 
     # initialize git pillar for repo
@@ -133,13 +126,13 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
     # Load the 'stack' pillar module
     stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)['stack']
+
     # Call the 'stack' pillar module
     if isinstance(stack_config, dict):
         return stack_pillar(minion_id, pillar, **stack_config)
 
     elif isinstance(stack_config, list):
-        return stack_pillar(minion_id, pillar,
-                            *stack_config, **stack_config_kwargs)
+        return stack_pillar(minion_id, pillar, *stack_config, **stack_config_kwargs)
 
     else:
         return stack_pillar(minion_id, pillar,
