@@ -50,20 +50,36 @@ suites:
                   branch: master
               - git:
                 - master file://<%= root_path %>/srv/salt/tests/repo_a
-  - name: nitrogen
+  - name: nitrogen-single
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
       pillars:
         gitstack_config.sls:
           gitstack_config:
             ext_pillar:
-              - gitstack: 
+              - gitstack:
                   stack: _stack/stack.cfg
                   repo: file://<%= root_path %>/srv/salt/tests/repo_a
                   branch: master
-              - git: 
+              - git:
                 - master file://<%= root_path %>/srv/salt/tests/repo_a
-
+  - name: nitrogen-multi
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
+      pillars:
+        gitstack_config.sls:
+          gitstack_config:
+            ext_pillar:
+              - gitstack:
+                - master file://<%= root_path %>/srv/salt/tests/repo_a:
+                  - stack: _stack/stack.cfg
+                - master file://<%= root_path %>/srv/salt/tests/repo_b:
+                  - stack: _stack/stack.cfg
+                  - root: pillar
+              - git:
+                - master file://<%= root_path %>/srv/salt/tests/repo_a
+                - master file://<%= root_path %>/srv/salt/tests/repo_b:
+                  - root: pillar
 verifier:
   name: shell
   remote_exec: false
