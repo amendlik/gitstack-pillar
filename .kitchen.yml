@@ -46,10 +46,10 @@ suites:
             ext_pillar:
               - gitstack: 
                   stack: _stack/stack.cfg
-                  repo: file://<%= root_path %>/srv/salt/tests
+                  repo: file://<%= root_path %>/srv/salt/tests/repo_a
                   branch: master
               - git: 
-                - master file://<%= root_path %>/srv/salt/tests
+                - master file://<%= root_path %>/srv/salt/tests/repo_a
 
 verifier:
   name: shell
