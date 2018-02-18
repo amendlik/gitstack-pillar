@@ -5,6 +5,9 @@ driver:
   use_sudo: false
   privileged: true
 
+platforms:
+  - name: debian
+
 provisioner:
   name: salt_solo
   is_file_root: true
@@ -18,29 +21,26 @@ provisioner:
     - Gemfile.lock
     - README.md
     - LICENSE
+  state_top:
+    base:
+      '*':
+        - tests.sandbox
   pillars:
+    top.sls:
+      base:
+        '*':
+          - kitchen
+          - gitstack_config
     kitchen.sls:
       kitchen:
         provisioner:
           root_path: <%= root_path %>
 
-platforms:
-  - name: debian
-
 suites:
   - name: carbon
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2016.11
-      state_top:
-        base:
-          '*':
-            - tests.sandbox
       pillars:
-        top.sls:
-          base:
-            '*':
-              - kitchen
-              - gitstack_config
         gitstack_config.sls:
           gitstack_config:
             ext_pillar:
@@ -50,29 +50,36 @@ suites:
                   branch: master
               - git:
                 - master file://<%= root_path %>/srv/salt/tests/repo_a
-  - name: nitrogen
+  - name: nitrogen-single
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
-      state_top:
-        base:
-          '*':
-            - tests.sandbox
       pillars:
-        top.sls:
-          base:
-            '*':
-              - kitchen
-              - gitstack_config
         gitstack_config.sls:
           gitstack_config:
             ext_pillar:
-              - gitstack: 
+              - gitstack:
                   stack: _stack/stack.cfg
                   repo: file://<%= root_path %>/srv/salt/tests/repo_a
                   branch: master
-              - git: 
+              - git:
                 - master file://<%= root_path %>/srv/salt/tests/repo_a
-
+  - name: nitrogen-multi
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
+      pillars:
+        gitstack_config.sls:
+          gitstack_config:
+            ext_pillar:
+              - gitstack:
+                - master file://<%= root_path %>/srv/salt/tests/repo_a:
+                  - stack: _stack/stack.cfg
+                - master file://<%= root_path %>/srv/salt/tests/repo_b:
+                  - stack: _stack/stack.cfg
+                  - root: pillar
+              - git:
+                - master file://<%= root_path %>/srv/salt/tests/repo_a
+                - master file://<%= root_path %>/srv/salt/tests/repo_b:
+                  - root: pillar
 verifier:
   name: shell
   remote_exec: false

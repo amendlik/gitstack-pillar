@@ -15,6 +15,14 @@ import salt.pillar.git_pillar
 # Import third party libs
 import salt.ext.six as six
 
+try:
+    from salt.utils.data import repack_dictlist
+except ImportError:
+    from salt.utils import repack_dictlist
+
+PER_REMOTE_OVERRIDES = salt.pillar.git_pillar.PER_REMOTE_OVERRIDES
+PER_REMOTE_ONLY = tuple(set(list(salt.pillar.git_pillar.PER_REMOTE_ONLY) + ['stack']))
+
 # Set up logging
 log = logging.getLogger(__name__)
 
@@ -34,19 +42,55 @@ def __virtual__():
     return __virtualname__
 
 
-def ext_pillar(minion_id, pillar, *args, **kwargs):
-
-    # Load the 'stack' pillar module
-    stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)['stack']
+def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
     # Checkout the ext_pillar sources
     opts = copy.deepcopy(__opts__)
     opts['pillar_roots'] = {}
     opts['__git_pillar'] = True
-    gitpillar = salt.utils.gitfs.GitPillar(opts)
+    stacks = []
+    invalid_repos_idx = []
 
-    gitpillar.init_remotes([' '.join([kwargs.get('branch', 'master'), kwargs['repo']])],
-                           salt.pillar.git_pillar.PER_REMOTE_OVERRIDES, salt.pillar.git_pillar.PER_REMOTE_ONLY)
+    ## legacy configuration with a plain dict under gitstack ext_pillar key
+    if single_repo_conf and single_repo_conf.get('repo', None) is not None:
+        branch = single_repo_conf.get('branch', 'master')
+        repo = single_repo_conf['repo']
+        remote = ' '.join([branch, repo])
+        init_gitpillar_args = [ [remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY ]
+        if 'stack' not in single_repo_conf:
+            log.error('A stack key is mandatory in gitstack configuration')
+            return {}
+
+    ## new configuration way
+    elif isinstance(repos, (list, tuple)) and len(repos) > 0:
+        for repo_idx, repo in enumerate(repos):
+            kw = repack_dictlist(repo[next(iter(repo))])
+            if 'stack' not in kw:
+                # stack param is mandatory in gitstack repos configuration
+                log.warning('Configuration for gitstack must contain a stack key for each repo.')
+                log.warning('Configured gitstack repo %s (at position %d) will be ignored' % (next(iter(repo)), repo_idx))
+                invalid_repos_idx.append(repo_idx)
+                continue
+
+            stacks.append(kw['stack'])
+
+        valid_repos = [repo for repo_idx, repo in enumerate(repos) if repo_idx not in invalid_repos_idx]
+        init_gitpillar_args = [ valid_repos, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY ]
+
+    else:
+        ### Invalid configuration
+        log.error('Configuration for gitstack must be a list of dicts or a single dict')
+        return {}
+
+    # initialize git pillar for repo
+    # check arguments to use with GitPillar, we could check also salt version
+    if len(salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames) > 2:
+        gitpillar = salt.utils.gitfs.GitPillar(opts, *init_gitpillar_args)
+    else:
+        gitpillar = salt.utils.gitfs.GitPillar(opts)
+        gitpillar.init_remotes(*init_gitpillar_args)
+
+
     if __opts__.get('__role') == 'minion':
         # If masterless, fetch the remotes. We'll need to remove this once
         # we make the minion daemon able to run standalone.
@@ -59,14 +103,36 @@ def ext_pillar(minion_id, pillar, *args, **kwargs):
         return {}
 
     # Replace relative paths with the absolute path of the cloned repository
-    stack_config = _resolve_stack(kwargs['stack'], list(gitpillar.pillar_dirs.items())[0][0])
+    if single_repo_conf:
+        stack_config = _resolve_stack(single_repo_conf['stack'], list(gitpillar.pillar_dirs.items())[0][0])
+    else:
+        stack_config = []
+        stack_config_kwargs = {}
+        pillar_dirs = list(gitpillar.pillar_dirs.keys())
+        for idx, stack in enumerate(stacks):
+            try:
+                pillar_dir = pillar_dirs[idx]
+            except IndexError:
+                log.warning('Ignoring gitstack stack configuration: %s' % stack)
+                log.warning('Ignoring gitstack repo maybe failed checkout')
+                continue
+            if isinstance(stack, dict):
+                # TODO: use dictupdate.merge
+                resolved_stack = _resolve_stack(stack, pillar_dir)
+                stack_config_kwargs.update(resolved_stack)
+            else:
+                resolved_stack = _resolve_stack(stack, pillar_dir)
+                stack_config.append(resolved_stack)
+
+    # Load the 'stack' pillar module
+    stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)['stack']
 
     # Call the 'stack' pillar module
     if isinstance(stack_config, dict):
         return stack_pillar(minion_id, pillar, **stack_config)
 
     elif isinstance(stack_config, list):
-        return stack_pillar(minion_id, pillar, *stack_config)
+        return stack_pillar(minion_id, pillar, *stack_config, **stack_config_kwargs)
 
     else:
         return stack_pillar(minion_id, pillar, stack_config)

@@ -1,5 +1,5 @@
 # GitStack Configuration
-The GitStack Pillar requires the same configuration as would be provided to the Stack Pillar, with a few differences.
+The GitStack Pillar requires the same configuration as would be provided to the Stack Pillar, with a few differences. 
 
 For a detailed explanation of all the configuration options available in the Stack Pillar, see the [Stack Pillar documentation](https://docs.saltstack.com/en/latest/ref/pillar/all/salt.pillar.stack.html#module-salt.pillar.stack).
 
@@ -11,29 +11,24 @@ The differences required for GitStack vs. Stack configuration are these:
 4. Configuration file paths must be relative to the root of the Git repository.
 5. Any Git repository referenced in the GitStack configuration must also be referenced in the Git Pillar configuration.
 
-#### Note:
-Users of Salt Carbon (2016.11) and earlier should refer to the [legacy configuration documentation](docs/carbon_config.md).
-The documentation below is for users of Salt Nitrogen (2017.7), which supports multiple Git repositories.
-
-## Configuration Examples
-
-### Example 1
+## Example 1
 Here is a simple example of a Stack Pillar configuration, which depends on files from the local filesystem:
 ```
 ext_pillar:
   - stack: /path/to/stack.cfg
 ```
-The equivalent GitStack Pillar configuration, fetching files from a remote Git repository, would look like this:
+The equivalent GitStack Pillar configuration, fetching files from a remote Git repository, might look like this:
 ```
 ext_pillar:
   - gitstack: 
-    - master https://github.com/org/myrepo.git
-      - stack: _stack/stack.cfg
+      stack: _stack/stack.cfg
+      repo: https://github.com/org/myrepo.git
+      branch: master
   - git: 
     - master https://github.com/org/myrepo.git
 ```
 
-### Example 2
+## Example 2
 Here is an example of a Stack Pillar configuration, which depends on files from the local filesystem:
 ```
 ext_pillar:
@@ -48,42 +43,24 @@ ext_pillar:
       opts:custom:opt:
         value: /path/to/stack0.cfg
 ```
-The equivalent GitStack Pillar configuration, fetching files from a remote Git repository, would look like this:
+The equivalent GitStack Pillar configuration, fetching files from a remote Git repository, might look like this:
 ```
 ext_pillar:
   - gitstack: 
-    - master https://github.com/org/myrepo.git
-      - stack:
-          pillar:environment:
-            dev: _stack/stack.cfg
-            prod: _stack/stack.cfg
-          grains:custom:grain:
-            value:
-              - _stack/stack1.cfg
-              - _stack/stack2.cfg
-          opts:custom:opt:
-            value: _stack/stack0.cfg
+      stack:
+        pillar:environment:
+          dev: _stack/stack.cfg
+          prod: _stack/stack.cfg
+        grains:custom:grain:
+          value:
+            - _stack/stack1.cfg
+            - _stack/stack2.cfg
+        opts:custom:opt:
+          value: _stack/stack0.cfg
+      repo: https://github.com/org/myrepo.git
+      branch: master
   - git: 
     - master https://github.com/org/myrepo.git
-```
-
-### Example 3
-It is also possible to configure GitStack using multiple Git repositories:
-```
-ext_pillar:
-  - gitstack:
-    - master https://mydomain.tld/foo.git:
-      - root: pillar
-      - stack: _stack/stack_foo.cfg
-    - master https://mydomain.tld/baz.git:
-      - stack: _stack/stack_baz.cfg
-    - dev https://mydomain.tld/qux.git:
-      - stack: _stack/stack_qux.cfg
-  - git:
-    - master https://mydomain.tld/foo.git:
-      - root: pillar
-    - master https://mydomain.tld/baz.git
-    - dev https://mydomain.tld/qux.git
 ```
 ## Explanation
 1. The entire Stack Pillar configuration is nested under the `stack` key, which is inself nested under the `gitstack` key. This configuration will be modified to resolve the relative file paths to the absolute path of the local cache of the Git repository, then passed to the Stack Pillar.
