@@ -28,6 +28,28 @@ platforms:
   - name: debian
 
 suites:
+  - name: carbon
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2016.11
+      state_top:
+        base:
+          '*':
+            - tests.sandbox
+      pillars:
+        top.sls:
+          base:
+            '*':
+              - kitchen
+              - gitstack_config
+        gitstack_config.sls:
+          gitstack_config:
+            ext_pillar:
+              - gitstack:
+                  stack: _stack/stack.cfg
+                  repo: file://<%= root_path %>/srv/salt/tests/repo_a
+                  branch: master
+              - git:
+                - master file://<%= root_path %>/srv/salt/tests/repo_a
   - name: nitrogen
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
