@@ -1,4 +1,4 @@
-<% provisioner_root_path='/tmp/kitchen' %>
+<% root_path='/tmp/kitchen' %>
 
 driver:
   name: docker
@@ -8,7 +8,7 @@ driver:
 provisioner:
   name: salt_solo
   is_file_root: true
-  root_path: <%= provisioner_root_path %>
+  root_path: <%= root_path %>
   salt_copy_filter:
     - .git
     - .gitignore
@@ -22,7 +22,7 @@ provisioner:
     kitchen.sls:
       kitchen:
         provisioner:
-          root_path: <%= provisioner_root_path %>
+          root_path: <%= root_path %>
 
 platforms:
   - name: debian
@@ -46,12 +46,12 @@ suites:
             ext_pillar:
               - gitstack: 
                   stack: _stack/stack.cfg
-                  repo: file://<%= provisioner_root_path %>/srv/salt/test
+                  repo: file://<%= root_path %>/srv/salt/test
                   branch: master
               - git: 
-                - master file://<%= provisioner_root_path %>/srv/salt/test
+                - master file://<%= root_path %>/srv/salt/test
 
 verifier:
   name: shell
   remote_exec: false
-  command: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -o LogLevel=ERROR -i ${KITCHEN_SSH_KEY} -p ${KITCHEN_PORT} ${KITCHEN_USERNAME}@${KITCHEN_HOSTNAME} sh <%= provisioner_root_path %>/srv/salt/test/suites/${KITCHEN_SUITE}/verify.sh
+  command: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -o LogLevel=ERROR -i ${KITCHEN_SSH_KEY} -p ${KITCHEN_PORT} ${KITCHEN_USERNAME}@${KITCHEN_HOSTNAME} sh <%= root_path %>/srv/salt/test/suites/${KITCHEN_SUITE}/verify.sh
