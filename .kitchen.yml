@@ -34,7 +34,7 @@ suites:
       state_top:
         base:
           '*':
-            - test.sandbox
+            - tests.sandbox
       pillars:
         top.sls:
           base:
@@ -46,12 +46,12 @@ suites:
             ext_pillar:
               - gitstack: 
                   stack: _stack/stack.cfg
-                  repo: file://<%= root_path %>/srv/salt/test
+                  repo: file://<%= root_path %>/srv/salt/tests
                   branch: master
               - git: 
-                - master file://<%= root_path %>/srv/salt/test
+                - master file://<%= root_path %>/srv/salt/tests
 
 verifier:
   name: shell
   remote_exec: false
-  command: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -o LogLevel=ERROR -i ${KITCHEN_SSH_KEY} -p ${KITCHEN_PORT} ${KITCHEN_USERNAME}@${KITCHEN_HOSTNAME} sh <%= root_path %>/srv/salt/test/suites/${KITCHEN_SUITE}/verify.sh
+  command: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -o LogLevel=ERROR -i ${KITCHEN_SSH_KEY} -p ${KITCHEN_PORT} ${KITCHEN_USERNAME}@${KITCHEN_HOSTNAME} sh <%= root_path %>/srv/salt/tests/suites/${KITCHEN_SUITE}/verify.sh
