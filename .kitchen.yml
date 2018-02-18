@@ -52,11 +52,20 @@ provisioner:
               - stack: _stack/stack.cfg
             - master file://<%= root_path %>/srv/salt/tests/repo_b:
               - stack: _stack/stack.cfg
-              - root: pillar
+              - root: pillar1
+              - name: repo_b1
+            - master file://<%= root_path %>/srv/salt/tests/repo_b:
+              - stack: _stack/stack.cfg
+              - root: pillar2
+              - name: repo_b2
           - git:
             - master file://<%= root_path %>/srv/salt/tests/repo_a
             - master file://<%= root_path %>/srv/salt/tests/repo_b:
-              - root: pillar
+              - root: pillar1
+              - name: repo_b1
+            - master file://<%= root_path %>/srv/salt/tests/repo_b:
+              - root: pillar2
+              - name: repo_b2
 
 suites:
   - name: carbon
