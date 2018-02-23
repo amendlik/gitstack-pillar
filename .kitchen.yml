@@ -35,51 +35,51 @@ provisioner:
       kitchen:
         provisioner:
           root_path: <%= root_path %>
+    carbon_config.sls:
+      gitstack_config:
+        ext_pillar:
+          - gitstack:
+              stack: _stack/stack.cfg
+              repo: file://<%= root_path %>/srv/salt/tests/repo_a
+              branch: master
+          - git:
+            - master file://<%= root_path %>/srv/salt/tests/repo_a
+    nitrogen_config.sls:
+      gitstack_config:
+        ext_pillar:
+          - gitstack:
+            - master file://<%= root_path %>/srv/salt/tests/repo_a:
+              - stack: _stack/stack.cfg
+            - master file://<%= root_path %>/srv/salt/tests/repo_b:
+              - stack: _stack/stack.cfg
+              - root: pillar
+          - git:
+            - master file://<%= root_path %>/srv/salt/tests/repo_a
+            - master file://<%= root_path %>/srv/salt/tests/repo_b:
+              - root: pillar
 
 suites:
   - name: carbon
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2016.11
-      pillars:
-        gitstack_config.sls:
-          gitstack_config:
-            ext_pillar:
-              - gitstack:
-                  stack: _stack/stack.cfg
-                  repo: file://<%= root_path %>/srv/salt/tests/repo_a
-                  branch: master
-              - git:
-                - master file://<%= root_path %>/srv/salt/tests/repo_a
-  - name: nitrogen-single
+      pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
+  - name: nitrogen-compat
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
-      pillars:
-        gitstack_config.sls:
-          gitstack_config:
-            ext_pillar:
-              - gitstack:
-                  stack: _stack/stack.cfg
-                  repo: file://<%= root_path %>/srv/salt/tests/repo_a
-                  branch: master
-              - git:
-                - master file://<%= root_path %>/srv/salt/tests/repo_a
-  - name: nitrogen-multi
+      pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
+  - name: nitrogen
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
-      pillars:
-        gitstack_config.sls:
-          gitstack_config:
-            ext_pillar:
-              - gitstack:
-                - master file://<%= root_path %>/srv/salt/tests/repo_a:
-                  - stack: _stack/stack.cfg
-                - master file://<%= root_path %>/srv/salt/tests/repo_b:
-                  - stack: _stack/stack.cfg
-                  - root: pillar
-              - git:
-                - master file://<%= root_path %>/srv/salt/tests/repo_a
-                - master file://<%= root_path %>/srv/salt/tests/repo_b:
-                  - root: pillar
+      pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
+  - name: oxygen-compat
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 git oxygen
+      pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
+  - name: oxygen
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 git oxygen
+      pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
+
 verifier:
   name: shell
   remote_exec: false
