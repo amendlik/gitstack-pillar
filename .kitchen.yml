@@ -82,11 +82,11 @@ suites:
       pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
   - name: oxygen-compat
     provisioner:
-      salt_bootstrap_options: -X -n -p git -p python-pygit2 git oxygen
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3
       pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
   - name: oxygen
     provisioner:
-      salt_bootstrap_options: -X -n -p git -p python-pygit2 git oxygen
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3
       pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
 
 verifier:
