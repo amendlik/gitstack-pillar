@@ -82,11 +82,21 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         log.error('Configuration for gitstack must be a list of dicts or a single dict')
         return {}
 
-    # initialize git pillar for repo
     # check arguments to use with GitPillar, we could check also salt version
     if len(salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames) > 2:
+        # Include GLOBAL_ONLY args for Salt versions that require it
+        if 'global_only' in salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames:
+            init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
+
+        # Initialize GitPillar object
         gitpillar = salt.utils.gitfs.GitPillar(opts, *init_gitpillar_args)
+
     else:
+        # Include GLOBAL_ONLY args for Salt versions that require it
+        if 'global_only' in salt.utils.gitfs.GitPillar.init_remotes.im_func.func_code.co_varnames:
+            init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
+
+        # Initialize GitPillar object
         gitpillar = salt.utils.gitfs.GitPillar(opts)
         gitpillar.init_remotes(*init_gitpillar_args)
 
