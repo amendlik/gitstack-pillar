@@ -72,21 +72,37 @@ suites:
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2016.11
       pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
-  - name: nitrogen-compat
+  - name: 2017-7-4-legacy
     provisioner:
-      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7.4
       pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
-  - name: nitrogen
+  - name: 2017-7-4-multirepo
     provisioner:
-      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7.4
       pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
-  - name: oxygen-compat
+  - name: 2017-7-5-legacy
     provisioner:
-      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7.5
       pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
-  - name: oxygen
+  - name: 2017-7-5-multirepo
     provisioner:
-      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7.5
+      pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
+  - name: 2018-3-0-legacy
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3.0
+      pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
+  - name: 2018-3-0-multirepo
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3.0
+      pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
+  - name: 2018-3-1-legacy
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3.1
+      pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
+  - name: 2018-3-1-multirepo
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3.1
       pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
 
 verifier:
