@@ -68,9 +68,9 @@ provisioner:
               - name: repo_b2
 
 suites:
-  - name: carbon
+  - name: 2016-11-9-legacy
     provisioner:
-      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2016.11
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2016.11.9
       pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
   - name: 2017-7-4-legacy
     provisioner:
@@ -108,4 +108,4 @@ suites:
 verifier:
   name: shell
   remote_exec: false
-  command: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -o LogLevel=ERROR -i ${KITCHEN_SSH_KEY} -p ${KITCHEN_PORT} ${KITCHEN_USERNAME}@${KITCHEN_HOSTNAME} sh <%= root_path %>/srv/salt/tests/suites/${KITCHEN_SUITE}/verify.sh
+  command: ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -o LogLevel=ERROR -i ${KITCHEN_SSH_KEY} -p ${KITCHEN_PORT} ${KITCHEN_USERNAME}@${KITCHEN_HOSTNAME} sh <%= root_path %>/srv/salt/tests/suites/${KITCHEN_SUITE##*-}/verify.sh
