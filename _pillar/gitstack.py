@@ -126,13 +126,12 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
                 log.warning('Ignoring gitstack stack configuration: %s' % stack)
                 log.warning('Ignoring gitstack repo maybe failed checkout')
                 continue
+
             if isinstance(stack, dict):
-                # TODO: use dictupdate.merge
-                resolved_stack = _resolve_stack(stack, pillar_dir)
-                stack_config_kwargs.update(resolved_stack)
+                # TODO: use salt.utils.dictupdate.merge
+                stack_config_kwargs.update(_resolve_stack(stack, pillar_dir))
             else:
-                resolved_stack = _resolve_stack(stack, pillar_dir)
-                stack_config.append(resolved_stack)
+                stack_config.append(_resolve_stack(stack, pillar_dir))
 
     # Load the 'stack' pillar module
     stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)['stack']
