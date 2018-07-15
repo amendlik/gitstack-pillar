@@ -82,11 +82,21 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         log.error('Configuration for gitstack must be a list of dicts or a single dict')
         return {}
 
-    # initialize git pillar for repo
     # check arguments to use with GitPillar, we could check also salt version
     if len(salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames) > 2:
+        # Include GLOBAL_ONLY args for Salt versions that require it
+        if 'global_only' in salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames:
+            init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
+
+        # Initialize GitPillar object
         gitpillar = salt.utils.gitfs.GitPillar(opts, *init_gitpillar_args)
+
     else:
+        # Include GLOBAL_ONLY args for Salt versions that require it
+        if 'global_only' in salt.utils.gitfs.GitPillar.init_remotes.im_func.func_code.co_varnames:
+            init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
+
+        # Initialize GitPillar object
         gitpillar = salt.utils.gitfs.GitPillar(opts)
         gitpillar.init_remotes(*init_gitpillar_args)
 
@@ -116,13 +126,12 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
                 log.warning('Ignoring gitstack stack configuration: %s' % stack)
                 log.warning('Ignoring gitstack repo maybe failed checkout')
                 continue
+
             if isinstance(stack, dict):
-                # TODO: use dictupdate.merge
-                resolved_stack = _resolve_stack(stack, pillar_dir)
-                stack_config_kwargs.update(resolved_stack)
+                # TODO: use salt.utils.dictupdate.merge
+                stack_config_kwargs.update(_resolve_stack(stack, pillar_dir))
             else:
-                resolved_stack = _resolve_stack(stack, pillar_dir)
-                stack_config.append(resolved_stack)
+                stack_config.append(_resolve_stack(stack, pillar_dir))
 
     # Load the 'stack' pillar module
     stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)['stack']
