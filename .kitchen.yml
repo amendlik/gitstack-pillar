@@ -88,6 +88,14 @@ suites:
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7.5
       pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
+  - name: 2017-7-6-legacy
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7.6
+      pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
+  - name: 2017-7-6-multirepo
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2017.7.6
+      pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
   - name: 2018-3-0-legacy
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3.0
@@ -104,7 +112,14 @@ suites:
     provisioner:
       salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3.1
       pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
-
+  - name: 2018-3-2-legacy
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3.2
+      pillars: { top.sls: { base: { '*': [ kitchen, carbon_config ] } } }
+  - name: 2018-3-2-multirepo
+    provisioner:
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 stable 2018.3.2
+      pillars: { top.sls: { base: { '*': [ kitchen, nitrogen_config ] } } }
 verifier:
   name: shell
   remote_exec: false
