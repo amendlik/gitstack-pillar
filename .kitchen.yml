@@ -33,6 +33,7 @@ provisioner:
       kitchen:
         provisioner:
           root_path: <%= root_path %>
+        test_key: 'test_value'
     carbon_config.sls:
       gitstack_config:
         ext_pillar:

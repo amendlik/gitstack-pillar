@@ -1,3 +1,4 @@
 stacktest: true
 repo_a: present
 reponame: repo_a
+template_key: {{ pillar['kitchen']['test_key'] }}
