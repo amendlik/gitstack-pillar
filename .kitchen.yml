@@ -17,20 +17,18 @@ provisioner:
     - .gitignore
     - .kitchen
     - .kitchen.yml
+    - .bundle
     - Gemfile
     - Gemfile.lock
     - README.md
     - LICENSE
+    - vendor
+    - docs
   state_top:
     base:
       '*':
         - tests.sandbox
   pillars:
-    top.sls:
-      base:
-        '*':
-          - kitchen
-          - gitstack_config
     kitchen.sls:
       kitchen:
         provisioner:
