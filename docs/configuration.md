@@ -26,10 +26,10 @@ ext_pillar:
 The equivalent GitStack Pillar configuration, fetching files from a remote Git repository, would look like this:
 ```
 ext_pillar:
-  - gitstack: 
-    - master https://github.com/org/myrepo.git
+  - gitstack:
+    - master https://github.com/org/myrepo.git:
       - stack: _stack/stack.cfg
-  - git: 
+  - git:
     - master https://github.com/org/myrepo.git
 ```
 
@@ -52,7 +52,7 @@ The equivalent GitStack Pillar configuration, fetching files from a remote Git r
 ```
 ext_pillar:
   - gitstack: 
-    - master https://github.com/org/myrepo.git
+    - master https://github.com/org/myrepo.git:
       - stack:
           pillar:environment:
             dev: _stack/stack.cfg
