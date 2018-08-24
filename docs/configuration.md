@@ -93,3 +93,17 @@ ext_pillar:
 3. Under the `gitstack` key, the `repo` and `branch` keys specify which remote repository to clone, and which branch should be checked out. The `branch` keyword will take a default value of `master` if omitted.
 
 4. The remote repository is also defined as a `git` external pillar. This is necessary for the remote repository to be polled for changes. The Salt Master runs an internal maintenance routine that specifically looks for repositories configured for the Git Pillar and fetches changes from those repositories. The only way to take advantage of that service is to configure the repository as a Git Pillar repository. As long as the Pillar Top File does not include GitStack files, there will be no conflict. It is also possible to include files for both the Git Pillar and GitStack pillar in the same Git repository, hence the recommendation to use a separate `_stack` directory above.
+
+## Pillar Chaining
+Multiple pillars may be active at the same time. In that case, pillar modules are run in the following order:
+
+1. **The "Roots" Pillar** - This is the built-in pillar provider that is configured using the `pillar_roots` configuration directive. It doesn't really have a name, but will be referred to as "Roots Pillar" in this documentation.
+2. **External Pillars** - Each external pillar listed in the `ext_pillar` configuration directive is run *in the order in which it is defined* in the configuration file.
+
+Salt executes each pillar module in order, merges the returned dictionary with the results from previously run pillar modules, then passes the merged dictionary to the next configured pillar. The details of how this merge is performed are configurable in the [Salt Master configuration](https://docs.saltstack.com/en/latest/ref/configuration/master.html#pillar-merging-options).
+
+The order and strategy of the pillar merge matter in at least two important ways:
+
+1. Data created by an earlier pillar can be overwritten or modified by a later pillar.
+2. A few pillar modules, including GitStack and PillarStack, actually make use of pillar data produced by earlier pillar modules. In these cases, data from earlier pillars is available in the `pillar` Jinja variable when resolving the stack configuration. Therefore, if certain pillar data is needed to resolve the stack configuration, **it must be provided by an earlier pillar module**. This can usually be achieved by ensuring that GitStack is configured last in the `ext_pillar` configuration directive.
+
