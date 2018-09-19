@@ -42,7 +42,7 @@ The GitStack pillar relies heavily on code already present in the SaltStack code
 
 1. A maintenance routine runs every minute within the Salt Master. Among other things, it looks for a Git external pillar configuration and fetches changes to those defined remote repositories.
 
-2. GitStack depends on that maintenance routine to fetch changes to its configured remote repositorie, which is why repositories must also be configured under the Git Pillar. GitStack checks out the requested branch and stores the absolute path to the Git working directory on the local system.
+2. GitStack depends on that maintenance routine to fetch changes to its configured remote repositories, which is why repositories must also be configured under the Git Pillar. GitStack checks out the requested branch and stores the absolute path to the Git working directory on the local system.
 
 3. GitStack then recursively walks through the value of the `stack` key and replaces relative file paths with absolute paths by prepending the Git working directory.
 
