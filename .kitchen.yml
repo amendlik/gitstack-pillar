@@ -48,7 +48,9 @@ provisioner:
         ext_pillar:
           - gitstack:
             - master file://<%= root_path %>/srv/salt/tests/repo_a:
-              - stack: _stack/stack1.cfg
+              - stack:
+                - _stack/stack1.cfg
+                - _stack/stack2.cfg
             - master file://<%= root_path %>/srv/salt/tests/repo_b:
               - stack: _stack/stack.cfg
               - root: pillar1
