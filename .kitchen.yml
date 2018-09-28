@@ -38,7 +38,7 @@ provisioner:
       gitstack_config:
         ext_pillar:
           - gitstack:
-              stack: _stack/stack.cfg
+              stack: _stack/stack1.cfg
               repo: file://<%= root_path %>/srv/salt/tests/repo_a
               branch: master
           - git:
@@ -48,7 +48,7 @@ provisioner:
         ext_pillar:
           - gitstack:
             - master file://<%= root_path %>/srv/salt/tests/repo_a:
-              - stack: _stack/stack.cfg
+              - stack: _stack/stack1.cfg
             - master file://<%= root_path %>/srv/salt/tests/repo_b:
               - stack: _stack/stack.cfg
               - root: pillar1
