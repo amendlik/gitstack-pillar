@@ -2,6 +2,7 @@
 <% @test_configs = ['legacy', 'multirepo'] %>
 <% @salt_versions = [
   ['stable', '2016.11.9'],
+  ['stable', '2016.11.10'],
   ['stable', '2017.7.4'],
   ['stable', '2017.7.5'],
   ['stable', '2017.7.6'],
