@@ -1,5 +1,5 @@
 <% root_path='/tmp/kitchen' %>
-<% @test_configs = ['legacy', 'multirepo'] %>
+<% @test_configs = ['legacy_singlestack', 'legacy_multistack', 'multirepo'] %>
 <% @salt_versions = [
   ['stable', '2016.11.9'],
   ['stable', '2016.11.10'],
@@ -49,11 +49,22 @@ provisioner:
         provisioner:
           root_path: <%= root_path %>
         test_key: 'test_value'
-    legacy_config.sls:
+    legacy_singlestack_config.sls:
       gitstack_config:
         ext_pillar:
           - gitstack:
               stack: _stack/stack1.cfg
+              repo: file://<%= root_path %>/srv/salt/tests/repo_a
+              branch: master
+          - git:
+            - master file://<%= root_path %>/srv/salt/tests/repo_a
+    legacy_multistack_config.sls:
+      gitstack_config:
+        ext_pillar:
+          - gitstack:
+              stack:
+                - _stack/stack1.cfg
+                - _stack/stack2.cfg
               repo: file://<%= root_path %>/srv/salt/tests/repo_a
               branch: master
           - git:
