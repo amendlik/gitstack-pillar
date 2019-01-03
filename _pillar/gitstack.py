@@ -112,12 +112,14 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         log.error('Repositories used by gitstack must be included in the git pillar configuration')
         return {}
 
+    # Initialize variables
+    stack_config = []
+    stack_config_kwargs = {}
+
     # Replace relative paths with the absolute path of the cloned repository
     if single_repo_conf:
         stack_config = _resolve_stack(single_repo_conf['stack'], list(gitpillar.pillar_dirs.items())[0][0])
     else:
-        stack_config = []
-        stack_config_kwargs = {}
         pillar_dirs = list(gitpillar.pillar_dirs.keys())
         for idx, stack in enumerate(stacks):
             try:
