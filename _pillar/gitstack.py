@@ -83,7 +83,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         return {}
 
     # check arguments to use with GitPillar, we could check also salt version
-    if len(salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames) > 2:
+    if len(_get_function_varnames(salt.utils.gitfs.GitPillar.__init__)) > 2:
         # Include GLOBAL_ONLY args for Salt versions that require it
         if 'global_only' in salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames:
             init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
@@ -168,3 +168,12 @@ def _resolve_stack(x, path):
     else:
         y = x
     return y
+
+
+def _get_function_varnames(fn):
+    '''
+    Return the var names for a function
+    '''
+    if six.PY2:
+        return fn.im_func.func_code.co_varnames
+    return fn.__code__.co_varnames
