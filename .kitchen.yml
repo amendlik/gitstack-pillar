@@ -15,6 +15,7 @@
   ['stable', '2018.3.4'],
   ['stable', '2019.2.0']
 ] %>
+<% @python_versions_options = ['', '-x python3'] %>
 
 driver:
   name: docker
@@ -98,16 +99,20 @@ provisioner:
 suites:
 <% @salt_versions.each do |version| %>
 <% @test_configs.each do |config| %>
+<% @python_versions_options.each do |py_ver_opt| %>
+<% unless ( version[1].start_with?('2016.') || version[1].start_with?('2017.') ) && py_ver_opt != '' %>
 <% unless version[1].start_with?('2016.11.') && config == 'multirepo' %>
   - name: <%= "#{version[1].gsub('.', '-')}-#{config}" %>
     provisioner:
-      salt_bootstrap_options: -X -n -p git -p python-pygit2 <%= version[0] %> <%= version[1] %>
+      salt_bootstrap_options: -X -n -p git -p python-pygit2 <%= py_ver_opt %> <%= version[0] %> <%= version[1] %>
       pillars:
         top.sls:
           base:
             '*':
               - kitchen
               - <%= config %>_config
+<% end %>
+<% end %>
 <% end %>
 <% end %>
 <% end %>
