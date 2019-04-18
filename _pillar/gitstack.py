@@ -85,7 +85,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
     # check arguments to use with GitPillar, we could check also salt version
     if len(_get_function_varnames(salt.utils.gitfs.GitPillar.__init__)) > 2:
         # Include GLOBAL_ONLY args for Salt versions that require it
-        if 'global_only' in salt.utils.gitfs.GitPillar.__init__.im_func.func_code.co_varnames:
+        if 'global_only' in _get_function_varnames(salt.utils.gitfs.GitPillar.__init__):
             init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
 
         # Initialize GitPillar object
@@ -93,7 +93,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
     else:
         # Include GLOBAL_ONLY args for Salt versions that require it
-        if 'global_only' in salt.utils.gitfs.GitPillar.init_remotes.im_func.func_code.co_varnames:
+        if 'global_only' in _get_function_varnames(salt.utils.gitfs.GitPillar.init_remotes):
             init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
 
         # Initialize GitPillar object
