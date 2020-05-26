@@ -13,7 +13,16 @@
   ['stable', '2018.3.2'],
   ['stable', '2018.3.3'],
   ['stable', '2018.3.4'],
-  ['stable', '2019.2.0']
+  ['stable', '2019.2.0'],
+  ['stable', '2019.2.1'],
+  ['stable', '2019.2.2'],
+  ['stable', '2019.2.3'],
+  ['stable', '2019.2.4'],
+  ['stable', '2019.2.5'],
+  ['stable', '3000'],
+  ['stable', '3000.1'],
+  ['stable', '3000.2'],
+  ['stable', '3000.3']
 ] %>
 <% @python_versions_options = ['python2', 'python3'] %>
 
