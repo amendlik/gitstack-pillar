@@ -24,6 +24,9 @@ driver:
 
 platforms:
   - name: debian
+    driver_config:
+      image: debian:9
+      platform: debian
 
 provisioner:
   name: salt_solo
