@@ -24,7 +24,7 @@ PER_REMOTE_OVERRIDES = salt.pillar.git_pillar.PER_REMOTE_OVERRIDES
 PER_REMOTE_ONLY = tuple(set(list(salt.pillar.git_pillar.PER_REMOTE_ONLY) + ['stack']))
 
 # Set up logging
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 # Define the module's virtual name
 __virtualname__ = 'gitstack'
@@ -56,9 +56,9 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         branch = single_repo_conf.get('branch', 'master')
         repo = single_repo_conf['repo']
         remote = ' '.join([branch, repo])
-        init_gitpillar_args = [ [remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY ]
+        init_gitpillar_args = [[remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
         if 'stack' not in single_repo_conf:
-            log.error('A stack key is mandatory in gitstack configuration')
+            LOG.error('A stack key is mandatory in gitstack configuration')
             return {}
 
     ## new configuration way
@@ -67,19 +67,19 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
             kw = repack_dictlist(repo[next(iter(repo))])
             if 'stack' not in kw:
                 # stack param is mandatory in gitstack repos configuration
-                log.warning('Configuration for gitstack must contain a stack key for each repo.')
-                log.warning('Configured gitstack repo %s (at position %d) will be ignored' % (next(iter(repo)), repo_idx))
+                LOG.warning('Configuration for gitstack must contain a stack key for each repo.')
+                LOG.warning('Configured gitstack repo %s (at position %d) will be ignored', next(iter(repo)), repo_idx)
                 invalid_repos_idx.append(repo_idx)
                 continue
 
             stacks.append(kw['stack'])
 
         valid_repos = [repo for repo_idx, repo in enumerate(repos) if repo_idx not in invalid_repos_idx]
-        init_gitpillar_args = [ valid_repos, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY ]
+        init_gitpillar_args = [valid_repos, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
 
     else:
         ### Invalid configuration
-        log.error('Configuration for gitstack must be a list of dicts or a single dict')
+        LOG.error('Configuration for gitstack must be a list of dicts or a single dict')
         return {}
 
     # check arguments to use with GitPillar, we could check also salt version
@@ -109,7 +109,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
     # Prepend the local path of the cloned Git repo
     if not gitpillar.pillar_dirs:
-        log.error('Repositories used by gitstack must be included in the git pillar configuration')
+        LOG.error('Repositories used by gitstack must be included in the git pillar configuration')
         return {}
 
     # Initialize variables
@@ -125,8 +125,8 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
             try:
                 pillar_dir = pillar_dirs[idx]
             except IndexError:
-                log.warning('Ignoring gitstack stack configuration: %s' % stack)
-                log.warning('Ignoring gitstack repo maybe failed checkout')
+                LOG.warning('Ignoring gitstack stack configuration: %s', stack)
+                LOG.warning('Ignoring gitstack repo maybe failed checkout')
                 continue
 
             if isinstance(stack, dict):
@@ -144,36 +144,36 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
     if isinstance(stack_config, dict):
         return stack_pillar(minion_id, pillar, **stack_config)
 
-    elif isinstance(stack_config, list):
+    if isinstance(stack_config, list):
         return stack_pillar(minion_id, pillar, *stack_config, **stack_config_kwargs)
 
-    else:
-        return stack_pillar(minion_id, pillar, stack_config)
+    return stack_pillar(minion_id, pillar, stack_config)
 
 
-def _resolve_stack(x, path):
+def _resolve_stack(relative, path):
     '''
     Resolve relative paths to the absolute path of the cloned Git repo
     '''
-    if isinstance(x, dict):
-        y = {}
-        for key, value in six.iteritems(x):
-            y[key] = _resolve_stack(value, path)
-    elif isinstance(x, list):
-        y = []
-        for item in x:
-            y.append(_resolve_stack(item, path))
-    elif isinstance(x, six.string_types):
-        y = os.path.join(path, x)
+    if isinstance(relative, dict):
+        absolute = {}
+        for key, value in six.iteritems(relative):
+            absolute[key] = _resolve_stack(value, path)
+    elif isinstance(relative, list):
+        absolute = []
+        for item in relative:
+            absolute.append(_resolve_stack(item, path))
+    elif isinstance(relative, six.string_types):
+        absolute = os.path.join(path, relative)
     else:
-        y = x
-    return y
+        absolute = relative
+    return absolute
 
 
-def _get_function_varnames(fn):
+def _get_function_varnames(function):
     '''
     Return the var names for a function
     '''
     if six.PY2:
-        return fn.im_func.func_code.co_varnames
-    return fn.__code__.co_varnames
+        return function.im_func.func_code.co_varnames
+
+    return function.__code__.co_varnames

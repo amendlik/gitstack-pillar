@@ -1,0 +1,2 @@
+[VARIABLES]
+additional-builtins=__opts__,__salt__,__context__
