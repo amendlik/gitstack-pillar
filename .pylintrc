@@ -1,2 +1,5 @@
+[MESSAGES CONTROL]
+disable=import-error,C0330
+
 [VARIABLES]
 additional-builtins=__opts__,__salt__,__context__
