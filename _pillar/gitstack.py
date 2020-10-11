@@ -45,9 +45,6 @@ def __virtual__():
 def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
     # Checkout the ext_pillar sources
-    opts = copy.deepcopy(__opts__)
-    opts["pillar_roots"] = {}
-    opts["__git_pillar"] = True
     stacks = []
     invalid_repos_idx = []
 
@@ -92,33 +89,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         LOG.error("Configuration for gitstack must be a list of dicts or a single dict")
         return {}
 
-    # check arguments to use with GitPillar, we could check also salt version
-    if len(_get_function_varnames(salt.utils.gitfs.GitPillar.__init__)) > 2:
-        # Include GLOBAL_ONLY args for Salt versions that require it
-        if "global_only" in _get_function_varnames(salt.utils.gitfs.GitPillar.__init__):
-            init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
-
-        # Initialize GitPillar object
-        gitpillar = salt.utils.gitfs.GitPillar(opts, *init_gitpillar_args)
-
-    else:
-        # Include GLOBAL_ONLY args for Salt versions that require it
-        if "global_only" in _get_function_varnames(
-            salt.utils.gitfs.GitPillar.init_remotes
-        ):
-            init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
-
-        # Initialize GitPillar object
-        gitpillar = salt.utils.gitfs.GitPillar(opts)
-        gitpillar.init_remotes(*init_gitpillar_args)
-
-    if __opts__.get("__role") == "minion":
-        # If masterless, fetch the remotes. We'll need to remove this once
-        # we make the minion daemon able to run standalone.
-        gitpillar.fetch_remotes()
-    gitpillar.checkout()
-
-    # Prepend the local path of the cloned Git repo
+    gitpillar = _init_gitpillar(init_gitpillar_args)
     if not gitpillar.pillar_dirs:
         LOG.error(
             "Repositories used by gitstack must be included in the git pillar configuration"
@@ -163,6 +134,41 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         return stack_pillar(minion_id, pillar, *stack_config, **stack_config_kwargs)
 
     return stack_pillar(minion_id, pillar, stack_config)
+
+
+def _init_gitpillar(init_gitpillar_args):
+
+    opts = copy.deepcopy(__opts__)
+    opts["pillar_roots"] = {}
+    opts["__git_pillar"] = True
+
+    # check arguments to use with GitPillar, we could check also salt version
+    if len(_get_function_varnames(salt.utils.gitfs.GitPillar.__init__)) > 2:
+        # Include GLOBAL_ONLY args for Salt versions that require it
+        if "global_only" in _get_function_varnames(salt.utils.gitfs.GitPillar.__init__):
+            init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
+
+        # Initialize GitPillar object
+        gitpillar = salt.utils.gitfs.GitPillar(opts, *init_gitpillar_args)
+
+    else:
+        # Include GLOBAL_ONLY args for Salt versions that require it
+        if "global_only" in _get_function_varnames(
+            salt.utils.gitfs.GitPillar.init_remotes
+        ):
+            init_gitpillar_args.append(salt.pillar.git_pillar.GLOBAL_ONLY)
+
+        # Initialize GitPillar object
+        gitpillar = salt.utils.gitfs.GitPillar(opts)
+        gitpillar.init_remotes(*init_gitpillar_args)
+
+    if __opts__.get("__role") == "minion":
+        # If masterless, fetch the remotes. We'll need to remove this once
+        # we make the minion daemon able to run standalone.
+        gitpillar.fetch_remotes()
+    gitpillar.checkout()
+
+    return gitpillar
 
 
 def _resolve_stack(relative, path):
