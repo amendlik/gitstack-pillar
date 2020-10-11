@@ -11,9 +11,8 @@ import salt.utils
 import salt.utils.gitfs
 import salt.utils.dictupdate
 import salt.pillar.git_pillar
-
-# Import third party libs
 import salt.ext.six as six
+from salt.exceptions import SaltException
 
 try:
     from salt.utils.data import repack_dictlist
@@ -89,11 +88,10 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
         LOG.error("Configuration for gitstack must be a list of dicts or a single dict")
         return {}
 
-    gitpillar = _init_gitpillar(init_gitpillar_args)
-    if not gitpillar.pillar_dirs:
-        LOG.error(
-            "Repositories used by gitstack must be included in the git pillar configuration"
-        )
+    try:
+        gitpillar = _init_gitpillar(init_gitpillar_args)
+    except GitStackPillarException as ex:
+        LOG.error(ex.message)
         return {}
 
     # Initialize variables
@@ -168,6 +166,11 @@ def _init_gitpillar(init_gitpillar_args):
         gitpillar.fetch_remotes()
     gitpillar.checkout()
 
+    if not gitpillar.pillar_dirs:
+        raise GitStackPillarException(
+            "Repositories used by gitstack must be included in the git pillar configuration"
+        )
+
     return gitpillar
 
 
@@ -198,3 +201,9 @@ def _get_function_varnames(function):
         return function.im_func.func_code.co_varnames
 
     return function.__code__.co_varnames
+
+
+class GitStackPillarException(SaltException):
+    """
+    Raised when GitStack encounters a problem.
+    """
