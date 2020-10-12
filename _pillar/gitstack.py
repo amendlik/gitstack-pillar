@@ -43,21 +43,9 @@ def __virtual__():
 
 def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
-    ## legacy configuration with a plain dict under gitstack ext_pillar key
-    if single_repo_conf and single_repo_conf.get("repo", None) is not None:
-        stacks, init_gitpillar_args = _get_legacy_init_args(single_repo_conf)
-
-    ## new configuration way
-    elif isinstance(repos, (list, tuple)) and len(repos) > 0:
-        stacks, init_gitpillar_args = _get_init_args(repos)
-
-    else:
-        ### Invalid configuration
-        LOG.error("Configuration for gitstack must be a list of dicts or a single dict")
-        return {}
-
     try:
-        gitpillar = _init_gitpillar(init_gitpillar_args)
+        stacks, gitpillar = _init_gitpillar(repos, single_repo_conf)
+
     except GitStackPillarException as ex:
         LOG.error(ex.message)
         return {}
@@ -92,7 +80,21 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
     return _call_stack_pillar(minion_id, pillar, stack_config, stack_config_kwargs)
 
 
-def _init_gitpillar(init_gitpillar_args):
+def _init_gitpillar(repos, single_repo_conf):
+
+    ## legacy configuration with a plain dict under gitstack ext_pillar key
+    if single_repo_conf and single_repo_conf.get("repo", None) is not None:
+        stacks, init_gitpillar_args = _get_legacy_init_args(single_repo_conf)
+
+    ## new configuration way
+    elif isinstance(repos, (list, tuple)) and len(repos) > 0:
+        stacks, init_gitpillar_args = _get_init_args(repos)
+
+    else:
+        ### Invalid configuration
+        raise GitStackPillarException(
+            "Configuration for gitstack must be a list of dicts or a single dict"
+        )
 
     opts = copy.deepcopy(__opts__)
     opts["pillar_roots"] = {}
@@ -129,7 +131,7 @@ def _init_gitpillar(init_gitpillar_args):
             "Repositories used by gitstack must be included in the git pillar configuration"
         )
 
-    return gitpillar
+    return stacks, gitpillar
 
 
 def _get_init_args(repos):
@@ -153,9 +155,7 @@ def _get_init_args(repos):
         stacks.append(kw["stack"])
 
     valid_repos = [
-        repo
-        for repo_idx, repo in enumerate(repos)
-        if repo_idx not in invalid_repos_idx
+        repo for repo_idx, repo in enumerate(repos) if repo_idx not in invalid_repos_idx
     ]
     init_gitpillar_args = [valid_repos, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
 
@@ -169,7 +169,9 @@ def _get_legacy_init_args(single_repo_conf):
     init_gitpillar_args = [[remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
 
     if "stack" not in single_repo_conf:
-        raise GitStackPillarException("A stack key is mandatory in gitstack configuration")
+        raise GitStackPillarException(
+            "A stack key is mandatory in gitstack configuration"
+        )
 
     return [], init_gitpillar_args
 
