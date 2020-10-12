@@ -89,17 +89,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
             else:
                 stack_config.append(_resolve_stack(stack, pillar_dir))
 
-    # Load the 'stack' pillar module
-    stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)["stack"]
-
-    # Call the 'stack' pillar module
-    if isinstance(stack_config, dict):
-        return stack_pillar(minion_id, pillar, **stack_config)
-
-    if isinstance(stack_config, list):
-        return stack_pillar(minion_id, pillar, *stack_config, **stack_config_kwargs)
-
-    return stack_pillar(minion_id, pillar, stack_config)
+    return _call_stack_pillar(minion_id, pillar, stack_config, stack_config_kwargs)
 
 
 def _init_gitpillar(init_gitpillar_args):
@@ -201,6 +191,21 @@ def _resolve_stack(relative, path):
     else:
         absolute = relative
     return absolute
+
+
+def _call_stack_pillar(minion_id, pillar, stack_config, stack_config_kwargs):
+
+    # Load the 'stack' pillar module
+    stack_pillar = salt.loader.pillars(__opts__, __salt__, __context__)["stack"]
+
+    # Call the 'stack' pillar module
+    if isinstance(stack_config, dict):
+        return stack_pillar(minion_id, pillar, **stack_config)
+
+    if isinstance(stack_config, list):
+        return stack_pillar(minion_id, pillar, *stack_config, **stack_config_kwargs)
+
+    return stack_pillar(minion_id, pillar, stack_config)
 
 
 def _get_function_varnames(function):
