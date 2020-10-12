@@ -43,45 +43,13 @@ def __virtual__():
 
 def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
-    # Checkout the ext_pillar sources
-    stacks = []
-    invalid_repos_idx = []
-
     ## legacy configuration with a plain dict under gitstack ext_pillar key
     if single_repo_conf and single_repo_conf.get("repo", None) is not None:
-        branch = single_repo_conf.get("branch", "master")
-        repo = single_repo_conf["repo"]
-        remote = " ".join([branch, repo])
-        init_gitpillar_args = [[remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
-        if "stack" not in single_repo_conf:
-            LOG.error("A stack key is mandatory in gitstack configuration")
-            return {}
+        stacks, init_gitpillar_args = _get_legacy_init_args(single_repo_conf)
 
     ## new configuration way
     elif isinstance(repos, (list, tuple)) and len(repos) > 0:
-        for repo_idx, repo in enumerate(repos):
-            kw = repack_dictlist(repo[next(iter(repo))])
-            if "stack" not in kw:
-                # stack param is mandatory in gitstack repos configuration
-                LOG.warning(
-                    "Configuration for gitstack must contain a stack key for each repo."
-                )
-                LOG.warning(
-                    "Configured gitstack repo %s (at position %d) will be ignored",
-                    next(iter(repo)),
-                    repo_idx,
-                )
-                invalid_repos_idx.append(repo_idx)
-                continue
-
-            stacks.append(kw["stack"])
-
-        valid_repos = [
-            repo
-            for repo_idx, repo in enumerate(repos)
-            if repo_idx not in invalid_repos_idx
-        ]
-        init_gitpillar_args = [valid_repos, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
+        stacks, init_gitpillar_args = _get_init_args(repos)
 
     else:
         ### Invalid configuration
@@ -172,6 +140,48 @@ def _init_gitpillar(init_gitpillar_args):
         )
 
     return gitpillar
+
+
+def _get_init_args(repos):
+    stacks = []
+    invalid_repos_idx = []
+    for repo_idx, repo in enumerate(repos):
+        kw = repack_dictlist(repo[next(iter(repo))])
+        if "stack" not in kw:
+            # stack param is mandatory in gitstack repos configuration
+            LOG.warning(
+                "Configuration for gitstack must contain a stack key for each repo."
+            )
+            LOG.warning(
+                "Configured gitstack repo %s (at position %d) will be ignored",
+                next(iter(repo)),
+                repo_idx,
+            )
+            invalid_repos_idx.append(repo_idx)
+            continue
+
+        stacks.append(kw["stack"])
+
+    valid_repos = [
+        repo
+        for repo_idx, repo in enumerate(repos)
+        if repo_idx not in invalid_repos_idx
+    ]
+    init_gitpillar_args = [valid_repos, PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
+
+    return stacks, init_gitpillar_args
+
+
+def _get_legacy_init_args(single_repo_conf):
+    branch = single_repo_conf.get("branch", "master")
+    repo = single_repo_conf["repo"]
+    remote = " ".join([branch, repo])
+    init_gitpillar_args = [[remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
+
+    if "stack" not in single_repo_conf:
+        raise GitStackPillarException("A stack key is mandatory in gitstack configuration")
+
+    return [], init_gitpillar_args
 
 
 def _resolve_stack(relative, path):
