@@ -138,8 +138,8 @@ def _get_init_args(repos):
     stacks = []
     invalid_repos_idx = []
     for repo_idx, repo in enumerate(repos):
-        kw = repack_dictlist(repo[next(iter(repo))])
-        if "stack" not in kw:
+        keywords = repack_dictlist(repo[next(iter(repo))])
+        if "stack" not in keywords:
             # stack param is mandatory in gitstack repos configuration
             LOG.warning(
                 "Configuration for gitstack must contain a stack key for each repo."
@@ -152,7 +152,7 @@ def _get_init_args(repos):
             invalid_repos_idx.append(repo_idx)
             continue
 
-        stacks.append(kw["stack"])
+        stacks.append(keywords["stack"])
 
     valid_repos = [
         repo for repo_idx, repo in enumerate(repos) if repo_idx not in invalid_repos_idx
