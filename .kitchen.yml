@@ -1,26 +1,26 @@
 <% root_path='/tmp/kitchen' %>
 <% @test_configs = ['legacy_singlestack', 'legacy_multistack', 'multirepo'] %>
 <% @salt_versions = [
-  ['stable', '2016.11.9'],
-  ['stable', '2016.11.10'],
-  ['stable', '2017.7.4'],
-  ['stable', '2017.7.5'],
-  ['stable', '2017.7.6'],
-  ['stable', '2017.7.7'],
-  ['stable', '2017.7.8'],
-  ['stable', '2018.3.0'],
-  ['stable', '2018.3.1'],
-  ['stable', '2018.3.2'],
-  ['stable', '2018.3.3'],
-  ['stable', '2018.3.4'],
-  ['stable', '2019.2.0'],
-  ['stable', '2019.2.1'],
-  ['stable', '2019.2.2'],
-  ['stable', '2019.2.3'],
+  ['git', 'v2016.11.9'],
+  ['git', 'v2016.11.10'],
+  ['git', 'v2017.7.4'],
+  ['git', 'v2017.7.5'],
+  ['git', 'v2017.7.6'],
+  ['git', 'v2017.7.7'],
+  ['git', 'v2017.7.8'],
+  ['git', 'v2018.3.0'],
+  ['git', 'v2018.3.1'],
+  ['git', 'v2018.3.2'],
+  ['git', 'v2018.3.3'],
+  ['git', 'v2018.3.4'],
+  ['git', 'v2019.2.0'],
+  ['git', 'v2019.2.1'],
+  ['git', 'v2019.2.2'],
+  ['git', 'v2019.2.3'],
   ['stable', '2019.2.4'],
   ['stable', '2019.2.5'],
   ['stable', '3000'],
-  ['stable', '3000.1'],
+  ['git', 'v3000.1'],
   ['stable', '3000.2'],
   ['stable', '3000.3']
 ] %>
@@ -112,9 +112,9 @@ suites:
 <% @salt_versions.each do |version| %>
 <% @test_configs.each do |config| %>
 <% @python_versions_options.each do |py_ver| %>
-<% unless ( version[1].start_with?('2016.') || version[1].start_with?('2017.') ) && py_ver != '' %>
-<% unless version[1].start_with?('2016.11.') && config == 'multirepo' %>
-  - name: <%= "#{py_ver}-#{version[1].gsub('.', '-')}-#{config}" %>
+<% unless ( version[1].include?('2016.') || version[1].include?('2017.') ) && py_ver != 'python2' %>
+<% unless version[1].include?('2016.11.') && config == 'multirepo' %>
+  - name: <%= "#{py_ver}-#{version[1].gsub(/^v/, '').gsub('.', '-')}-#{config}" %>
     provisioner:
       salt_bootstrap_options: -X -n -p git -p <%= py_ver.tr('2', '') %>-pygit2 -x <%= py_ver %> <%= version[0] %> <%= version[1] %>
       pillars:
