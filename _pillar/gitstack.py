@@ -70,8 +70,11 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
                 continue
 
             if isinstance(stack, dict):
-                # TODO: use salt.utils.dictupdate.merge
-                stack_config_kwargs.update(_resolve_stack(stack, pillar_dir))
+                salt.utils.dictupdate.update(
+                    stack_config,
+                    _resolve_stack(stack, pillar_dir)
+                )
+
             elif isinstance(stack, list):
                 stack_config.extend(_resolve_stack(stack, pillar_dir))
             else:
