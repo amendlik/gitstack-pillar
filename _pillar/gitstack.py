@@ -31,11 +31,11 @@ __virtualname__ = "gitstack"
 
 def __virtual__():
     """
-    Only load if gitstack pillars are defined
+    Only load if GitStack pillars are defined
     """
     gitstack_pillars = [x for x in __opts__["ext_pillar"] if "gitstack" in x]
     if not gitstack_pillars:
-        # No gitstack external pillars were configured
+        # No GitStack external pillars were configured
         return False
 
     return __virtualname__
@@ -65,8 +65,8 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
             try:
                 pillar_dir = pillar_dirs[idx]
             except IndexError:
-                LOG.warning("Ignoring gitstack stack configuration: %s", stack)
-                LOG.warning("Ignoring gitstack repo maybe failed checkout")
+                LOG.warning("Ignoring GitStack stack configuration: %s", stack)
+                LOG.warning("Ignoring GitStack repo maybe failed checkout")
                 continue
 
             if isinstance(stack, dict):
@@ -85,18 +85,18 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
 def _init_gitpillar(repos, single_repo_conf):
 
-    ## legacy configuration with a plain dict under gitstack ext_pillar key
+    # legacy configuration with a plain dict under GitStack ext_pillar key
     if single_repo_conf and single_repo_conf.get("repo", None) is not None:
         stacks, init_gitpillar_args = _get_legacy_init_args(single_repo_conf)
 
-    ## new configuration way
+    # new configuration way
     elif isinstance(repos, (list, tuple)) and len(repos) > 0:
         stacks, init_gitpillar_args = _get_init_args(repos)
 
     else:
-        ### Invalid configuration
+        # Invalid configuration
         raise GitStackPillarException(
-            "Configuration for gitstack must be a list of dicts or a single dict"
+            "Configuration for GitStack must be a list of dicts or a single dict"
         )
 
     opts = copy.deepcopy(__opts__)
@@ -131,7 +131,7 @@ def _init_gitpillar(repos, single_repo_conf):
 
     if not gitpillar.pillar_dirs:
         raise GitStackPillarException(
-            "Repositories used by gitstack must be included in the git pillar configuration"
+            "Repositories used by GitStack must be included in the git pillar configuration"
         )
 
     return stacks, gitpillar
@@ -143,12 +143,12 @@ def _get_init_args(repos):
     for repo_idx, repo in enumerate(repos):
         keywords = repack_dictlist(repo[next(iter(repo))])
         if "stack" not in keywords:
-            # stack param is mandatory in gitstack repos configuration
+            # stack param is mandatory in GitStack repos configuration
             LOG.warning(
-                "Configuration for gitstack must contain a stack key for each repo."
+                "Configuration for GitStack must contain a stack key for each repo."
             )
             LOG.warning(
-                "Configured gitstack repo %s (at position %d) will be ignored",
+                "Configured GitStack repo %s (at position %d) will be ignored",
                 next(iter(repo)),
                 repo_idx,
             )
@@ -173,7 +173,7 @@ def _get_legacy_init_args(single_repo_conf):
 
     if "stack" not in single_repo_conf:
         raise GitStackPillarException(
-            "A stack key is mandatory in gitstack configuration"
+            "A stack key is mandatory in GitStack configuration"
         )
 
     return [], init_gitpillar_args
