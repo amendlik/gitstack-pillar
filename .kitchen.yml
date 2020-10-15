@@ -22,7 +22,9 @@
   ['stable', '3000'],
   ['git', 'v3000.1'],
   ['stable', '3000.2'],
-  ['stable', '3000.3']
+  ['stable', '3000.3'],
+  ['stable', '3001'],
+  ['stable', '3001.1']
 ] %>
 <% @python_versions_options = ['python2', 'python3'] %>
 
@@ -112,7 +114,8 @@ suites:
 <% @salt_versions.each do |version| %>
 <% @test_configs.each do |config| %>
 <% @python_versions_options.each do |py_ver| %>
-<% unless ( version[1].include?('2016.') || version[1].include?('2017.') ) && py_ver != 'python2' %>
+<% major_version = version[1].gsub(/^v?(\d+)\..*/, '\1').to_i %>
+<% unless (major_version < 2018 && py_ver != 'python2') || (major_version >= 3001 && py_ver != 'python3') %>
 <% unless version[1].include?('2016.11.') && config == 'multirepo' %>
   - name: <%= "#{py_ver}-#{version[1].gsub(/^v/, '').gsub('.', '-')}-#{config}" %>
     provisioner:
