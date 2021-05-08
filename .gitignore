@@ -1,4 +1,3 @@
 .kitchen/
-.bundle/
 vendor/
 Dockerfile-kitchen*
