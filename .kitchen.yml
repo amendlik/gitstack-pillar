@@ -1,32 +1,20 @@
 <% root_path='/tmp/kitchen' %>
 <% @test_configs = ['legacy_singlestack', 'legacy_multistack', 'multirepo'] %>
 <% @salt_versions = [
-  ['git', 'v2016.11.9'],
-  ['git', 'v2016.11.10'],
-  ['git', 'v2017.7.4'],
-  ['git', 'v2017.7.5'],
-  ['git', 'v2017.7.6'],
-  ['git', 'v2017.7.7'],
-  ['git', 'v2017.7.8'],
-  ['git', 'v2018.3.0'],
-  ['git', 'v2018.3.1'],
-  ['git', 'v2018.3.2'],
-  ['git', 'v2018.3.3'],
-  ['git', 'v2018.3.4'],
-  ['git', 'v2019.2.0'],
-  ['git', 'v2019.2.1'],
-  ['git', 'v2019.2.2'],
-  ['git', 'v2019.2.3'],
-  ['stable', '2019.2.4'],
-  ['stable', '2019.2.5'],
-  ['stable', '3000'],
-  ['git', 'v3000.1'],
-  ['stable', '3000.2'],
-  ['stable', '3000.3'],
   ['stable', '3001'],
-  ['stable', '3001.1']
+  ['stable', '3001.1'],
+  ['stable', '3001.2'],
+  ['stable', '3001.3'],
+  ['stable', '3001.4'],
+  ['stable', '3002'],
+  ['stable', '3002.1'],
+  ['stable', '3002.2'],
+  ['stable', '3002.3'],
+  ['stable', '3002.4'],
+  ['stable', '3002.5'],
+  ['stable', '3003'],
 ] %>
-<% @python_versions_options = ['python2', 'python3'] %>
+<% @python_versions_options = ['python3'] %>
 
 driver:
   name: docker
