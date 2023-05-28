@@ -50,6 +50,17 @@ The GitStack pillar relies heavily on code already present in the SaltStack code
 
 5. All processing of configuration files, YAML files, Jinja templates, etc. is handled by the Stack Pillar.
 
+## Running Tests
+Set up test environment
+```
+$ gem install bundle
+$ bundle install
+```
+Test everything:
+```
+$ DOCKER_BUILDKIT=0 bundle exec kitchen test
+```
+
 ## License
 
    Licensed under the Apache License, Version 2.0 (the "License");

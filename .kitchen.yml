@@ -1,18 +1,8 @@
 <% root_path='/tmp/kitchen' %>
 <% @test_configs = ['legacy_singlestack', 'legacy_multistack', 'multirepo'] %>
 <% @salt_versions = [
-  ['stable', '3001'],
-  ['stable', '3001.1'],
-  ['stable', '3001.2'],
-  ['stable', '3001.3'],
-  ['stable', '3001.4'],
-  ['stable', '3002'],
-  ['stable', '3002.1'],
-  ['stable', '3002.2'],
-  ['stable', '3002.3'],
-  ['stable', '3002.4'],
-  ['stable', '3002.5'],
-  ['stable', '3003'],
+  ['stable', '3004'],
+  ['stable', '3005'],
 ] %>
 <% @python_versions_options = ['python3'] %>
 
@@ -24,7 +14,7 @@ driver:
 platforms:
   - name: debian
     driver_config:
-      image: debian:9
+      image: debian:11
       platform: debian
 
 provisioner:
