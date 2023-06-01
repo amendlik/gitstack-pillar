@@ -1,8 +1,9 @@
 <% root_path='/tmp/kitchen' %>
-<% @test_configs = ['legacy_singlestack', 'legacy_multistack', 'multirepo'] %>
+<% @test_configs = ['multirepo'] %>
 <% @salt_versions = [
-  ['stable', '3004'],
-  ['stable', '3005'],
+  ['stable', '3004.2'],
+  ['onedir', '3005.1'],
+  ['onedir', '3006.1'],
 ] %>
 <% @python_versions_options = ['python3'] %>
 
@@ -43,26 +44,6 @@ provisioner:
         provisioner:
           root_path: <%= root_path %>
         test_key: 'test_value'
-    legacy_singlestack_config.sls:
-      gitstack_config:
-        ext_pillar:
-          - gitstack:
-              stack: _stack/stack1.cfg
-              repo: file://<%= root_path %>/srv/salt/tests/repo_a
-              branch: master
-          - git:
-            - master file://<%= root_path %>/srv/salt/tests/repo_a
-    legacy_multistack_config.sls:
-      gitstack_config:
-        ext_pillar:
-          - gitstack:
-              stack:
-                - _stack/stack1.cfg
-                - _stack/stack2.cfg
-              repo: file://<%= root_path %>/srv/salt/tests/repo_a
-              branch: master
-          - git:
-            - master file://<%= root_path %>/srv/salt/tests/repo_a
     multirepo_config.sls:
       gitstack_config:
         ext_pillar:
@@ -93,19 +74,18 @@ suites:
 <% @test_configs.each do |config| %>
 <% @python_versions_options.each do |py_ver| %>
 <% major_version = version[1].gsub(/^v?(\d+)\..*/, '\1').to_i %>
-<% unless (major_version < 2018 && py_ver != 'python2') || (major_version >= 3001 && py_ver != 'python3') %>
-<% unless version[1].include?('2016.11.') && config == 'multirepo' %>
   - name: <%= "#{py_ver}-#{version[1].gsub(/^v/, '').gsub('.', '-')}-#{config}" %>
     provisioner:
       salt_bootstrap_options: -X -n -p git -p <%= py_ver.tr('2', '') %>-pygit2 -x <%= py_ver %> <%= version[0] %> <%= version[1] %>
+<% if version[0] == "onedir" || major_version >= 3006 %>
+      pre_salt_command: sudo salt-pip install pygit2
+<% end %>
       pillars:
         top.sls:
           base:
             '*':
               - kitchen
               - <%= config %>_config
-<% end %>
-<% end %>
 <% end %>
 <% end %>
 <% end %>

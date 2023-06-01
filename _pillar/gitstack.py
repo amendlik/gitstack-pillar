@@ -11,13 +11,8 @@ import salt.utils
 import salt.utils.gitfs
 import salt.utils.dictupdate
 import salt.pillar.git_pillar
-import salt.ext.six as six
+from salt.utils.data import repack_dictlist
 from salt.exceptions import SaltException
-
-try:
-    from salt.utils.data import repack_dictlist
-except ImportError:
-    from salt.utils import repack_dictlist
 
 PER_REMOTE_OVERRIDES = salt.pillar.git_pillar.PER_REMOTE_OVERRIDES
 PER_REMOTE_ONLY = tuple(set(list(salt.pillar.git_pillar.PER_REMOTE_ONLY) + ["stack"]))
@@ -71,8 +66,7 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
             if isinstance(stack, dict):
                 salt.utils.dictupdate.update(
-                    stack_config,
-                    _resolve_stack(stack, pillar_dir)
+                    stack_config, _resolve_stack(stack, pillar_dir)
                 )
 
             elif isinstance(stack, list):
@@ -85,12 +79,8 @@ def ext_pillar(minion_id, pillar, *repos, **single_repo_conf):
 
 def _init_gitpillar(repos, single_repo_conf):
 
-    # legacy configuration with a plain dict under GitStack ext_pillar key
-    if single_repo_conf and single_repo_conf.get("repo", None) is not None:
-        stacks, init_gitpillar_args = _get_legacy_init_args(single_repo_conf)
-
-    # new configuration way
-    elif isinstance(repos, (list, tuple)) and len(repos) > 0:
+    # Retrieve configuration
+    if isinstance(repos, (list, tuple)) and len(repos) > 0:
         stacks, init_gitpillar_args = _get_init_args(repos)
 
     else:
@@ -165,33 +155,19 @@ def _get_init_args(repos):
     return stacks, init_gitpillar_args
 
 
-def _get_legacy_init_args(single_repo_conf):
-    branch = single_repo_conf.get("branch", "master")
-    repo = single_repo_conf["repo"]
-    remote = " ".join([branch, repo])
-    init_gitpillar_args = [[remote], PER_REMOTE_OVERRIDES, PER_REMOTE_ONLY]
-
-    if "stack" not in single_repo_conf:
-        raise GitStackPillarException(
-            "A stack key is mandatory in GitStack configuration"
-        )
-
-    return [], init_gitpillar_args
-
-
 def _resolve_stack(relative, path):
     """
     Resolve relative paths to the absolute path of the cloned Git repo
     """
     if isinstance(relative, dict):
         absolute = {}
-        for key, value in six.iteritems(relative):
+        for key, value in relative.items():
             absolute[key] = _resolve_stack(value, path)
     elif isinstance(relative, list):
         absolute = []
         for item in relative:
             absolute.append(_resolve_stack(item, path))
-    elif isinstance(relative, six.string_types):
+    elif isinstance(relative, str):
         absolute = os.path.join(path, relative)
     else:
         absolute = relative
@@ -217,9 +193,6 @@ def _get_function_varnames(function):
     """
     Return the var names for a function
     """
-    if six.PY2:
-        return function.im_func.func_code.co_varnames
-
     return function.__code__.co_varnames
 
 
