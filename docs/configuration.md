@@ -9,11 +9,6 @@ The differences required for GitStack vs. Stack configuration are these:
 2. Keys for `repo` and `branch` must be included under the `gitstack` key. These specify the Git repository and branch that contain the stack configuration files.
 3. The `stack` key (which would be directly beneath `ext_pillar` when using the Stack Pillar), must be nested under the `gitstack` key.
 4. Configuration file paths must be relative to the root of the Git repository.
-5. Any Git repository referenced in the GitStack configuration must also be referenced in the Git Pillar configuration.
-
-#### Note:
-Users of Salt Carbon (2016.11) and earlier should refer to the [legacy configuration documentation](docs/carbon_config.md).
-The documentation below is for users of Salt Nitrogen (2017.7), which supports multiple Git repositories.
 
 ## Configuration Examples
 
